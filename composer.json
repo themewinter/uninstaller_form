@@ -1,0 +1,15 @@
+{
+    "name": "your-vendor/uninstaller_form",
+    "description": "WordPress plugin feedback and deactivation handler",
+    "type": "library",
+    "license": "MIT",
+    "autoload": {
+      "psr-4": {
+        "UninstallerForm\\": "src/"
+      }
+    },
+    "require": {
+      "php": ">=7.4"
+    }
+  }
+  
