@@ -17,6 +17,7 @@
   },
   "minimum-stability": "stable",
   "require": {
-    "google/apiclient": "^2.0"
+    "google/apiclient": "^2.0",
+    "monolog/monolog": "^2.9"
   }
 }
