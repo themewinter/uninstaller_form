@@ -8,12 +8,12 @@ class FeedbackControllerTest extends TestCase {
 
         $request = new WP_REST_Request('POST', '/feedback');
         $request->set_body_params([
-            'message' => 'Great plugin!',
+            'message'    => 'Great plugin!',
             'pluginSlug' => 'my-plugin',
         ]);
 
         $response = $controller->handle_feedback($request);
-        $data = $response->get_data();
+        $data     = $response->get_data();
 
         $this->assertTrue($data['success']);
         $this->assertEquals('Great plugin!', get_option('uninstall_feedback_my-plugin'));

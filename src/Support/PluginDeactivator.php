@@ -3,9 +3,9 @@ namespace UninstallerForm\Support;
 
 /**
  * PluginDeactivator class for the uninstaller form.
- * 
+ *
  * @since 1.0.0
- * 
+ *
  * @package UNINSTALLER_FORM
  */
 class PluginDeactivator {
@@ -13,18 +13,18 @@ class PluginDeactivator {
 
     /**
      * PluginDeactivator Constructor.
-     * 
+     *
      * @param string $plugin_file The path to the plugin file.
-     * 
+     *
      * @since 1.0.0
-     */ 
+     */
     public function __construct($plugin_file) {
         $this->plugin_file = $plugin_file;
     }
 
     /**
      * Deactivate the plugin.
-     * 
+     *
      * @since 1.0.0
      */
     public function deactivate() {
