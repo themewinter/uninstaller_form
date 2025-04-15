@@ -1,15 +1,19 @@
 {
-    "name": "your-vendor/uninstaller_form",
-    "description": "WordPress plugin feedback and deactivation handler",
-    "type": "library",
-    "license": "MIT",
-    "autoload": {
-      "psr-4": {
-        "UninstallerForm\\": "src/"
-      }
-    },
-    "require": {
-      "php": ">=7.4"
+  "name": "your-vendor/uninstaller_form",
+  "description": "Reusable WordPress plugin uninstaller feedback form with REST API",
+  "type": "library",
+  "autoload": {
+    "psr-4": {
+      "UninstallerForm\\": "src/"
     }
-  }
-  
+  },
+  "autoload-dev": {
+    "psr-4": {
+      "UninstallerForm\\Tests\\": "tests/"
+    }
+  },
+  "require-dev": {
+    "phpunit/phpunit": "^10"
+  },
+  "minimum-stability": "stable"
+}
