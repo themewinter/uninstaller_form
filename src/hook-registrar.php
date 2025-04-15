@@ -5,12 +5,13 @@ use UninstallerForm\Api\FeedbackController;
 use UninstallerForm\Support\Localizer;
 
 class HookRegistrar {
-    protected $plugin_name, $plugin_slug, $plugin_file;
+    protected $plugin_name, $plugin_slug, $plugin_file, $script_handler;
 
-    public function __construct($plugin_name, $plugin_slug, $plugin_file) {
+    public function __construct($plugin_name, $plugin_slug, $plugin_file, $script_handler) {
         $this->plugin_name = $plugin_name;
         $this->plugin_slug = $plugin_slug;
         $this->plugin_file = $plugin_file;
+        $this->script_handler = $script_handler;
     }
 
     public function register() {
@@ -19,7 +20,7 @@ class HookRegistrar {
         });
 
         add_action('wp_enqueue_scripts', function () {
-            (new Localizer($this->plugin_name, $this->plugin_slug, $this->plugin_file))->handle();
+            (new Localizer($this->plugin_name, $this->plugin_slug, $this->plugin_file,$this->script_handler))->handle();
         });
     }
 }
