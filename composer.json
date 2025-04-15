@@ -1,5 +1,5 @@
 {
-  "name": "your-vendor/uninstaller_form",
+  "name": "themewinter/uninstaller_form",
   "description": "Reusable WordPress plugin uninstaller feedback form with REST API",
   "type": "library",
   "autoload": {
