@@ -36,8 +36,10 @@ Add the following configuration to your `composer.json`:
 
 2. **Update Dependencies**
 
+```json
 composer update
 composer dump-autoload
+
 
 ## Configuration
 
@@ -55,10 +57,12 @@ add_action('init', function() {
 
 ## Feedback API Integration From NPM Package
 
-base_url/plugin_slug/v1/feedback
+API base_url/plugin_slug/v1/feedback
 
 Example: http://localhost/project/wp-json/wp-cafe/v1/feedback
 
 Here: 
+
 base_url = http://localhost/project/wp-json
+
 plugin_slug = wp-cafe
