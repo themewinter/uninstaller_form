@@ -80,16 +80,22 @@ class FeedbackController {
      * @return WP_REST_Response The response object.
      */
     public function handle_feedback(WP_REST_Request $request) {
+        $nonce = $request->get_header('X-WP-Nonce');
+        if (!wp_verify_nonce($nonce, 'wp_feedback')) {
+            return rest_ensure_response([
+                'status_code' => 403,
+                'success'     => 0,
+                'message'     => __('Invalid nonce. Unauthorized request.', $this->plugin_text_domain),
+            ]);
+        }
+        
         $data     = $request->get_json_params();
-        $feedback = sanitize_text_field($data['message'] ?? 'No feedback');
+        $feedback = !empty( $data['message'] ) ? sanitize_text_field( $data['message'] ) : 'No feedback';
 
         // Get current user info
         $current_user   = wp_get_current_user();
         $customer_name  = $current_user->exists() ? $current_user->display_name : 'Guest';
         $customer_email = $current_user->exists() ? $current_user->user_email : 'N/A';
-
-        // Save to WP option (optional)
-        update_option('uninstall_feedback_' . $plugin_slug, $feedback);
 
         try {
             $credentialsPath = plugin_dir_path($this->plugin_file) . 'vendor/themewinter/uninstaller_form/config/google-credentials.json';
@@ -110,8 +116,6 @@ class FeedbackController {
                 'message'     => __('Unable to store feedback.', $this->plugin_text_domain),
             ]);
         }
-
-        (new PluginDeactivator($this->plugin_file))->deactivate();
 
         return rest_ensure_response([
             'status_code' => 200,

@@ -36,7 +36,7 @@ class Localizer {
     public function handle() {
         wp_localize_script($this->script_handle, 'UninstallerData', [
             'restUrl'    => rest_url('uninstaller-form/v1/feedback'),
-            'nonce'      => wp_create_nonce('wp_rest'),
+            'nonce'      => wp_create_nonce('wp_feedback'),
             'pluginName' => $this->name,
             'pluginSlug' => $this->slug,
         ]);
