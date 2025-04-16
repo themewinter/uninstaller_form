@@ -36,7 +36,7 @@ Add the following configuration to your `composer.json`:
 
 2. **Update Dependencies**
 
-```json
+```bash
 composer update
 composer dump-autoload
 ```
@@ -46,7 +46,7 @@ composer dump-autoload
 
 1. **In your plugin's main file, add this initialization code within the init action hook**
 
-```json
+```php
 add_action('init', function() {
     UninstallerForm::init(
         'WP Cafe',         // Plugin name
