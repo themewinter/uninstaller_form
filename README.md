@@ -32,6 +32,7 @@ Add the following configuration to your `composer.json`:
         }
     ]
 }
+```
 
 2. **Update Dependencies**
 
