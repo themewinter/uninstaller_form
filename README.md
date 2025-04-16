@@ -69,3 +69,5 @@ add_action('init', function() {
 base_url = http://localhost/project/wp-json
 
 plugin_slug = wp-cafe
+
+**API DOCUMENTATION**: https://documenter.getpostman.com/view/3522317/2sB2cbaeCQ
