@@ -20,6 +20,7 @@ A reusable WordPress package that collects plugin deactivation feedback via a Re
 
 Add the following configuration to your `composer.json`:
 
+```json
 {
     "require": {
         "themewinter/uninstaller_form": "dev-main"
