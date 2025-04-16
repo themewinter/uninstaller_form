@@ -39,12 +39,14 @@ Add the following configuration to your `composer.json`:
 ```json
 composer update
 composer dump-autoload
+```
 
 
 ## Configuration
 
 1. **In your plugin's main file, add this initialization code within the init action hook**
 
+```json
 add_action('init', function() {
     UninstallerForm::init(
         'WP Cafe',         // Plugin name
@@ -54,14 +56,15 @@ add_action('init', function() {
         'plugins-admin-script-handler'  // plugins-admin-script-handler
     );
 });
+```
 
 ## Feedback API Integration From NPM Package
 
-API base_url/plugin_slug/v1/feedback
+**Install the Feedback API NPM Package**:  base_url/plugin_slug/v1/feedback
 
-Example: http://localhost/project/wp-json/wp-cafe/v1/feedback
+**Example**: http://localhost/project/wp-json/wp-cafe/v1/feedback
 
-Here: 
+**Here**: 
 
 base_url = http://localhost/project/wp-json
 
