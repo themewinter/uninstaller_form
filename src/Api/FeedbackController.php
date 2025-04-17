@@ -90,7 +90,9 @@ class FeedbackController {
         }
         
         $data     = $request->get_json_params();
-        $feedback = !empty( $data['message'] ) ? sanitize_text_field( $data['message'] ) : 'No feedback';
+        $feedback = !empty( $data['feedback'] ) ? sanitize_text_field( $data['feedback'] ) : 'No feedback';
+        $reason = !empty( $data['reason'] ) ? sanitize_text_field( $data['reason'] ) : 'No reason';
+
 
         // Get current user info
         $current_user   = wp_get_current_user();
@@ -105,6 +107,7 @@ class FeedbackController {
             $sheetClient->appendRow([
                 current_time('mysql'), // Timestamp
                 $this->plugin_name,    // Plugin Slug
+                $reason,               // Reason
                 $feedback,             // Feedback message
                 $customer_name,        // Customer name
                 $customer_email,       // Customer email
