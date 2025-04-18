@@ -81,7 +81,7 @@ class FeedbackController {
      */
     public function handle_feedback(WP_REST_Request $request) {
         $nonce = $request->get_header('X-WP-Nonce');
-        if (!wp_verify_nonce($nonce, 'wp_feedback')) {
+        if (!wp_verify_nonce($nonce, 'wp_rest')) {
             return rest_ensure_response([
                 'status_code' => 403,
                 'success'     => 0,

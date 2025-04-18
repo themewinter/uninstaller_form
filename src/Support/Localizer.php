@@ -9,7 +9,7 @@ namespace UninstallerForm\Support;
  * @package UNINSTALLER_FORM
  */
 class Localizer {
-    protected $name, $slug, $plugin_file, $script_handle;
+    protected $name, $text_domain, $plugin_file, $script_handle;
 
     /**
      * Localizer Constructor.
@@ -21,9 +21,9 @@ class Localizer {
      *
      * @since 1.0.0
      */
-    public function __construct($name, $slug, $plugin_file, $script_handle) {
+    public function __construct($name, $text_domain, $plugin_file, $script_handle) {
         $this->name          = $name;
-        $this->slug          = $slug;
+        $this->text_domain          = $text_domain;
         $this->plugin_file   = $plugin_file;
         $this->script_handle = $script_handle;
     }
@@ -34,8 +34,10 @@ class Localizer {
      * @since 1.0.0
      */
     public function handle() {
-        wp_localize_script($this->script_handle, $this->slug.'_feedback', [
-            'nonce'      => wp_create_nonce('wp_feedback')
-        ]);
+        $data = [
+            'nonce' => wp_create_nonce('wp_rest'),
+        ];
+
+        wp_add_inline_script($this->script_handle, 'window.'.$this->text_domain.'_feedback = ' . wp_json_encode($data) . ';', 'before');
     }
 }
