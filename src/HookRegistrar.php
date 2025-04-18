@@ -45,7 +45,7 @@ class HookRegistrar {
             new FeedbackController($this->plugin_file,$this->plugin_text_domain, $this->plugin_name, $this->plugin_slug);
         });
 
-        add_action('wp_enqueue_scripts', function () {
+        add_action('wp_admin_enqueue_scripts', function () {
             $localizer = new Localizer($this->plugin_name, $this->plugin_slug, $this->plugin_file, $this->script_handler);
             $localizer->handle();
         });
