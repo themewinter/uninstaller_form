@@ -38,6 +38,6 @@ class Localizer {
             'nonce' => wp_create_nonce('wp_rest'),
         ];
 
-        wp_add_inline_script($this->script_handle, 'window.'.$this->text_domain.'_feedback = ' . wp_json_encode($data) . ';', 'before');
+        wp_add_inline_script($this->script_handle, 'window.arraytics_feedback = ' . wp_json_encode($data) . ';', 'before');
     }
 }

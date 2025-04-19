@@ -24,7 +24,7 @@ class FeedbackController {
      *
      * @var string
      */
-    protected $namespace;
+    protected $namespace ='v1';
 
     /**
      * Store rest base
@@ -50,7 +50,6 @@ class FeedbackController {
         $this->plugin_text_domain = $plugin_text_domain;
         $this->plugin_name = $plugin_name;
         $this->plugin_slug = $plugin_slug;
-        $this->namespace   = $plugin_slug . '/v1';
         $this->register_routes();
     }
 
