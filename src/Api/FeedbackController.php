@@ -100,10 +100,14 @@ class FeedbackController {
         $customer_email = $current_user->exists() ? $current_user->user_email : 'N/A';
 
         try {
-            $credentialsPath = plugin_dir_path($this->plugin_file) . 'vendor/themewinter/uninstaller_form/config/google-credentials.json';
-            $spreadsheetId   = '1sqQFL1SqR93EdzgI1xBbpJIq5QPBvunCvQ_tMOIlPZo';
+            $config         = include plugin_dir_path($this->plugin_file) . 'vendor/themewinter/uninstaller_form/config/google-sheet.php';
+            $spreadsheetId  = $config['spreadsheet_id'] ?? '';
 
-            $sheetClient = new \UninstallerForm\Support\GoogleSheetClient($credentialsPath, $spreadsheetId);
+            $credentialsPath = plugin_dir_path($this->plugin_file) . 'vendor/themewinter/uninstaller_form/config/google-credentials.json';
+
+            $sheetName = str_replace(' ', '_', $this->plugin_name);
+
+            $sheetClient = new \UninstallerForm\Support\GoogleSheetClient($credentialsPath, $spreadsheetId,$sheetName);
             $sheetClient->appendRow([
                 current_time('mysql'), // Timestamp
                 $this->plugin_name,    // Plugin Slug

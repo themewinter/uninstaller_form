@@ -20,18 +20,61 @@ class GoogleSheetClient {
         $this->service = new Google_Service_Sheets($this->client);
     }
 
+    // public function appendRow(array $values) {
+    //     $body   = new \Google_Service_Sheets_ValueRange([
+    //         'values' => [$values],
+    //     ]);
+    //     $params = ['valueInputOption' => 'RAW'];
+    //     $range  = $this->sheetName;
+
+    //     return $this->service->spreadsheets_values->append(
+    //         $this->spreadsheetId,
+    //         $range,
+    //         $body,
+    //         $params
+    //     );
+    // }
+
     public function appendRow(array $values) {
-        $body   = new \Google_Service_Sheets_ValueRange([
+        $sheets = $this->service->spreadsheets->get($this->spreadsheetId)->getSheets();
+        $sheetExists = false;
+
+        foreach ($sheets as $sheet) {
+            if ($sheet->getProperties()->getTitle() === $this->sheetName) {
+                $sheetExists = true;
+                break;
+            }
+        }
+
+        // Create sheet if it doesn't exist
+        if (!$sheetExists) {
+            $addSheetRequest = new \Google_Service_Sheets_Request([
+                'addSheet' => [
+                    'properties' => [
+                        'title' => $this->sheetName,
+                    ],
+                ],
+            ]);
+
+            $batchUpdateRequest = new \Google_Service_Sheets_BatchUpdateSpreadsheetRequest([
+                'requests' => [$addSheetRequest],
+            ]);
+
+            $this->service->spreadsheets->batchUpdate($this->spreadsheetId, $batchUpdateRequest);
+        }
+
+        // Append data
+        $body = new \Google_Service_Sheets_ValueRange([
             'values' => [$values],
         ]);
         $params = ['valueInputOption' => 'RAW'];
-        $range  = $this->sheetName;
 
         return $this->service->spreadsheets_values->append(
             $this->spreadsheetId,
-            $range,
+            $this->sheetName,
             $body,
             $params
         );
     }
+
 }
