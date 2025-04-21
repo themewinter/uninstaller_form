@@ -48,6 +48,10 @@ composer dump-autoload
 
 ```php
 add_action('init', function() {
+    if (file_exists(plugin_dir_path( __FILE__ ) . '/vendor/autoload.php')) {
+        require_once plugin_dir_path( __FILE__ ) . '/vendor/autoload.php';
+    }
+
     UninstallerForm::init(
         'WP Cafe',         // Plugin name
         'wp-cafe',         // Plugin Slug
