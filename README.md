@@ -49,10 +49,9 @@ composer dump-autoload
 
 ## Configuration
 
-1. **In your plugin's main file, add this initialization code within the init action hook**
+1. **In your plugin's main file, add this initialization code. Make sure this code will be executed after all of your scripts enqued successfully**
 
 ```php
-add_action('init', function() {
     if (file_exists(plugin_dir_path( __FILE__ ) . '/vendor/autoload.php')) {
         require_once plugin_dir_path( __FILE__ ) . '/vendor/autoload.php';
     }
@@ -64,7 +63,6 @@ add_action('init', function() {
         'wpcafe',          // Text Domain Name
         'plugins-admin-script-handler'  // plugins-admin-script-handler
     );
-});
 ```
 
 ## Feedback API Integration From NPM Package
