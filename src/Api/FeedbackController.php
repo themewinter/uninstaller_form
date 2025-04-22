@@ -1,7 +1,6 @@
 <?php
 namespace UninstallerForm\Api;
 
-use UninstallerForm\Support\PluginDeactivator;
 use WP_REST_Request;
 
 /**
@@ -46,11 +45,11 @@ class FeedbackController {
      * @since 1.0.0
      */
     public function __construct($plugin_file, $plugin_text_domain, $plugin_name, $plugin_slug) {
-        $this->plugin_file = $plugin_file;
+        $this->plugin_file        = $plugin_file;
         $this->plugin_text_domain = $plugin_text_domain;
-        $this->plugin_name = $plugin_name;
-        $this->plugin_slug = $plugin_slug;
-        $this->namespace   = $plugin_slug . '/v1';
+        $this->plugin_name        = $plugin_name;
+        $this->plugin_slug        = $plugin_slug;
+        $this->namespace          = $plugin_slug . '/v1';
         $this->register_routes();
     }
 
@@ -81,18 +80,17 @@ class FeedbackController {
      */
     public function handle_feedback(WP_REST_Request $request) {
         $nonce = $request->get_header('X-WP-Nonce');
-        if (!wp_verify_nonce($nonce, 'wp_rest')) {
+        if (! wp_verify_nonce($nonce, 'wp_rest')) {
             return rest_ensure_response([
                 'status_code' => 403,
                 'success'     => 0,
                 'message'     => __('Invalid nonce. Unauthorized request.', $this->plugin_text_domain),
             ]);
         }
-        
-        $data     = $request->get_json_params();
-        $feedback = !empty( $data['feedback'] ) ? sanitize_text_field( $data['feedback'] ) : 'No feedback';
-        $reason = !empty( $data['reason'] ) ? sanitize_text_field( $data['reason'] ) : 'No reason';
 
+        $data     = $request->get_json_params();
+        $feedback = ! empty($data['feedback']) ? sanitize_text_field($data['feedback']) : 'No feedback';
+        $reason   = ! empty($data['reason']) ? sanitize_text_field($data['reason']) : 'No reason';
 
         // Get current user info
         $current_user   = wp_get_current_user();
@@ -100,14 +98,15 @@ class FeedbackController {
         $customer_email = $current_user->exists() ? $current_user->user_email : 'N/A';
 
         try {
-            $config         = include plugin_dir_path($this->plugin_file) . 'vendor/themewinter/uninstaller_form/config/google-sheet.php';
-            $spreadsheetId  = $config['spreadsheet_id'] ?? '';
+            $config        = include plugin_dir_path($this->plugin_file) . 'vendor/themewinter/uninstaller_form/config/google-sheet.php';
+            $spreadsheetId = $config['spreadsheet_id'] ?? '';
 
             $credentialsPath = plugin_dir_path($this->plugin_file) . 'vendor/themewinter/uninstaller_form/config/google-credentials.json';
 
             $sheetName = str_replace(' ', '_', $this->plugin_name);
 
-            $sheetClient = new \UninstallerForm\Support\GoogleSheetClient($credentialsPath, $spreadsheetId,$sheetName);
+            //Storing data to excell sheet
+            $sheetClient = new \UninstallerForm\Support\GoogleSheetClient($credentialsPath, $spreadsheetId, $sheetName);
             $sheetClient->appendRow([
                 current_time('mysql'), // Timestamp
                 $this->plugin_name,    // Plugin Slug
@@ -116,6 +115,19 @@ class FeedbackController {
                 $customer_name,        // Customer name
                 $customer_email,       // Customer email
             ]);
+
+            //Send data through webhook
+            $webhook = "https://themewinter.com/?fluentcrm=1&route=contact&hash=50d358fa-e039-4459-a3d0-ef73b3c7d451";
+            $body    = [
+                'customer_name'  => $customer_name,
+                'customer_email' => $customer_email,
+                'plugin_name'    => $this->plugin_name,
+                'reason'         => $reason,
+                'feedback'       => $feedback,
+            ];
+
+            $webhook_response = wp_remote_post($webhook, ['body' => $body]);
+
         } catch (\Exception $e) {
             return rest_ensure_response([
                 'status_code' => 500,
