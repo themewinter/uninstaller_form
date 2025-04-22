@@ -33,6 +33,11 @@ Add the following configuration to your `composer.json`:
     ]
 }
 ```
+If you do not have, composer installed in your plugin, please install using 
+
+```bash
+composer init
+```
 
 2. **Update Dependencies**
 
