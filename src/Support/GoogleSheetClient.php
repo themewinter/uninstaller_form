@@ -56,7 +56,7 @@ class GoogleSheetClient {
             }
         }
 
-        // Create sheet if it doesn't exist
+        // Create sheet and add column headers if it doesn't exist
         if (!$sheetExists) {
             $addSheetRequest = new \Google_Service_Sheets_Request([
                 'addSheet' => [
@@ -71,9 +71,30 @@ class GoogleSheetClient {
             ]);
 
             $this->service->spreadsheets->batchUpdate($this->spreadsheetId, $batchUpdateRequest);
+
+            // Add column headers after creating the new sheet
+            $headers = [
+                'Customer Name',
+                'Customer Email',
+                'Plugin Name',
+                'Reason',
+                'Feedback',
+                'Timestamp'
+            ];
+
+            $headerBody = new \Google_Service_Sheets_ValueRange([
+                'values' => [$headers],
+            ]);
+
+            $this->service->spreadsheets_values->append(
+                $this->spreadsheetId,
+                $this->sheetName,
+                $headerBody,
+                ['valueInputOption' => 'RAW']
+            );
         }
 
-        // Append data
+        // Append the actual data
         $body = new \Google_Service_Sheets_ValueRange([
             'values' => [$values],
         ]);

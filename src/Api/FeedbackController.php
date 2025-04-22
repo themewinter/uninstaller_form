@@ -108,12 +108,12 @@ class FeedbackController {
             //Storing data to excell sheet
             $sheetClient = new \UninstallerForm\Support\GoogleSheetClient($credentialsPath, $spreadsheetId, $sheetName);
             $sheetClient->appendRow([
-                current_time('mysql'), // Timestamp
+                $customer_name,        // Customer name
+                $customer_email,       // Customer email
                 $this->plugin_name,    // Plugin Slug
                 $reason,               // Reason
                 $feedback,             // Feedback message
-                $customer_name,        // Customer name
-                $customer_email,       // Customer email
+                current_time('mysql'), // Timestamp
             ]);
 
             //Send data through webhook
