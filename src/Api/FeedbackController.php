@@ -44,7 +44,7 @@ class FeedbackController {
      *
      * @since 1.0.0
      */
-    public function __construct($plugin_file, $plugin_text_domain, $plugin_name, $plugin_slug) {
+    public function __construct( $plugin_file, $plugin_text_domain, $plugin_name, $plugin_slug ) {
         $this->plugin_file        = $plugin_file;
         $this->plugin_text_domain = $plugin_text_domain;
         $this->plugin_name        = $plugin_name;
@@ -61,13 +61,13 @@ class FeedbackController {
      * @return void
      */
     protected function register_routes() {
-        register_rest_route($this->namespace, $this->rest_base, [
+        register_rest_route( $this->namespace, $this->rest_base, [
             'methods'             => 'POST',
             'callback'            => [$this, 'handle_feedback'],
             'permission_callback' => function () {
-                return current_user_can('manage_options');
+                return current_user_can( 'manage_options' );
             },
-        ]);
+        ] );
     }
 
     /**
@@ -78,43 +78,45 @@ class FeedbackController {
      * @param WP_REST_Request $request The request object.
      * @return WP_REST_Response The response object.
      */
-    public function handle_feedback(WP_REST_Request $request) {
-        $nonce = $request->get_header('X-WP-Nonce');
-        if (! wp_verify_nonce($nonce, 'wp_rest')) {
-            return rest_ensure_response([
+    public function handle_feedback( WP_REST_Request $request ) {
+        $nonce = $request->get_header( 'X-WP-Nonce' );
+        if ( !wp_verify_nonce( $nonce, 'wp_rest' ) ) {
+            return rest_ensure_response( [
                 'status_code' => 403,
                 'success'     => 0,
-                'message'     => __('Invalid nonce. Unauthorized request.', $this->plugin_text_domain),
-            ]);
+                'message'     => __( 'Invalid nonce. Unauthorized request.', $this->plugin_text_domain ),
+            ] );
         }
 
-        $data     = $request->get_json_params();
-        $feedback = ! empty($data['feedback']) ? sanitize_text_field($data['feedback']) : 'No feedback';
-        $reason   = ! empty($data['reason']) ? sanitize_text_field($data['reason']) : 'No reason';
+        $data           = $request->get_json_params();
+        $feedback       = !empty( $data['feedback'] ) ? sanitize_text_field( $data['feedback'] ) : 'No feedback';
+        $reasons        = !empty( $data['reasons'] ) ? sanitize_text_field( $data['reasons'] ) : 'No reasons';
+        $customer_email = !empty( $data['email'] ) ? is_email( $data['email'] ) : '';
+        $theme_name     = !empty( $data['theme_name'] ) ? sanitize_text_field( $data['theme_name'] ) : '';
 
         // Get current user info
-        $current_user   = wp_get_current_user();
-        $customer_name  = $current_user->exists() ? $current_user->display_name : 'Guest';
-        $customer_email = $current_user->exists() ? $current_user->user_email : 'N/A';
+        $current_user  = wp_get_current_user();
+        $customer_name = $current_user->exists() ? $current_user->display_name : 'Guest';
 
         try {
-            $config        = include plugin_dir_path($this->plugin_file) . 'vendor/themewinter/uninstaller_form/config/google-sheet.php';
+            $config        = include plugin_dir_path( $this->plugin_file ) . 'vendor/themewinter/uninstaller_form/config/google-sheet.php';
             $spreadsheetId = $config['spreadsheet_id'] ?? '';
 
-            $credentialsPath = plugin_dir_path($this->plugin_file) . 'vendor/themewinter/uninstaller_form/config/google-credentials.json';
+            $credentialsPath = plugin_dir_path( $this->plugin_file ) . 'vendor/themewinter/uninstaller_form/config/google-credentials.json';
 
-            $sheetName = str_replace(' ', '_', $this->plugin_name);
+            $sheetName = str_replace( ' ', '_', $this->plugin_name );
 
             //Storing data to excell sheet
-            $sheetClient = new \UninstallerForm\Support\GoogleSheetClient($credentialsPath, $spreadsheetId, $sheetName);
-            $sheetClient->appendRow([
-                $customer_name,        // Customer name
-                $customer_email,       // Customer email
-                $this->plugin_name,    // Plugin Slug
-                $reason,               // Reason
-                $feedback,             // Feedback message
-                current_time('mysql'), // Timestamp
-            ]);
+            $sheetClient = new \UninstallerForm\Support\GoogleSheetClient( $credentialsPath, $spreadsheetId, $sheetName );
+            $sheetClient->appendRow( [
+                $customer_name, // Customer name
+                $customer_email, // Customer email
+                $this->plugin_name, // Plugin Slug
+                $reasons, // Reason
+                $feedback, // Feedback message,
+                $theme_name, // Theme name
+                current_time( 'mysql' ), // Timestamp
+            ] );
 
             //Send data through webhook
             $webhook = "https://themewinter.com/?fluentcrm=1&route=contact&hash=50d358fa-e039-4459-a3d0-ef73b3c7d451";
@@ -122,24 +124,25 @@ class FeedbackController {
                 'customer_name'  => $customer_name,
                 'customer_email' => $customer_email,
                 'plugin_name'    => $this->plugin_name,
-                'reason'         => $reason,
+                'reason'         => $reasons,
                 'feedback'       => $feedback,
+                'theme_name'     => $theme_name,
             ];
 
-            $webhook_response = wp_remote_post($webhook, ['body' => $body]);
+            $webhook_response = wp_remote_post( $webhook, ['body' => $body] );
 
-        } catch (\Exception $e) {
-            return rest_ensure_response([
+        } catch ( \Exception $e ) {
+            return rest_ensure_response( [
                 'status_code' => 500,
                 'success'     => 0,
-                'message'     => __('Unable to store feedback.', $this->plugin_text_domain),
-            ]);
+                'message'     => __( 'Unable to store feedback.', $this->plugin_text_domain ),
+            ] );
         }
 
-        return rest_ensure_response([
+        return rest_ensure_response( [
             'status_code' => 200,
             'success'     => 1,
-            'message'     => __('Feedback saved successfully.', $this->plugin_text_domain),
-        ]);
+            'message'     => __( 'Feedback saved successfully.', $this->plugin_text_domain ),
+        ] );
     }
 }
