@@ -91,7 +91,7 @@ class FeedbackController {
         $data           = $request->get_json_params();
         $feedback       = !empty( $data['feedback'] ) ? sanitize_text_field( $data['feedback'] ) : 'No feedback';
         $reasons        = !empty( $data['reasons'] ) ? sanitize_text_field( $data['reasons'] ) : 'No reasons';
-        $customer_email = !empty( $data['email'] ) ? is_email( $data['email'] ) : '';
+        $customer_email = !is_email( $data['email'] ) ? sanitize_email_field( $data['email'] ) : '';
         $theme_name     = !empty( $data['theme_name'] ) ? sanitize_text_field( $data['theme_name'] ) : '';
 
         // Get current user info
