@@ -84,7 +84,7 @@ class FeedbackController {
             return rest_ensure_response( [
                 'status_code' => 403,
                 'success'     => 0,
-                'message'     => __( 'Invalid nonce. Unauthorized request.', $this->plugin_text_domain ),
+                'message'     => 'Invalid nonce. Unauthorized request.',
             ] );
         }
 
@@ -135,14 +135,14 @@ class FeedbackController {
             return rest_ensure_response( [
                 'status_code' => 500,
                 'success'     => 0,
-                'message'     => __( 'Unable to store feedback.', $this->plugin_text_domain ),
+                'message'     => 'Unable to store feedback.',
             ] );
         }
 
         return rest_ensure_response( [
             'status_code' => 200,
             'success'     => 1,
-            'message'     => __( 'Feedback saved successfully.', $this->plugin_text_domain ),
+            'message'     => 'Feedback saved successfully.',
         ] );
     }
 }
