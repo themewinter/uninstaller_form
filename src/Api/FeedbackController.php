@@ -94,6 +94,10 @@ class FeedbackController {
         $customer_email = is_email( $data['email'] ) ? sanitize_email( $data['email'] ) : '';
         $theme_name     = !empty( $data['theme_name'] ) ? sanitize_text_field( $data['theme_name'] ) : '';
 
+        if ( !$this->verify_email_status( $customer_email ) ) {
+            $customer_email = '';
+        }
+
         // Get current user info
         $current_user  = wp_get_current_user();
         $customer_name = $current_user->exists() ? $current_user->display_name : 'Guest';
@@ -118,19 +122,19 @@ class FeedbackController {
                 current_time( 'mysql' ), // Timestamp
             ] );
 
-            //Send data through webhook
-            $webhook = "https://themewinter.com/?fluentcrm=1&route=contact&hash=50d358fa-e039-4459-a3d0-ef73b3c7d451";
-            $body    = [
-                'customer_name'  => $customer_name,
-                'customer_email' => $customer_email,
-                'plugin_name'    => $this->plugin_name,
-                'reason'         => $reasons,
-                'feedback'       => $feedback,
-                'theme_name'     => $theme_name,
-            ];
-
-            $webhook_response = wp_remote_post( $webhook, ['body' => $body] );
-
+            if ( !empty( $customer_email ) ) {
+                //Send data through webhook
+                $webhook = "https://themewinter.com/?fluentcrm=1&route=contact&hash=50d358fa-e039-4459-a3d0-ef73b3c7d451";
+                $body    = [
+                    'customer_name' => $customer_name,
+                    'email'         => $customer_email,
+                    'plugin_name'   => $this->plugin_name,
+                    'reason'        => $reasons,
+                    'feedback'      => $feedback,
+                    'theme_name'    => $theme_name,
+                ];
+                $webhook_response = wp_remote_post( $webhook, ['body' => $body] );
+            }
         } catch ( \Exception $e ) {
             return rest_ensure_response( [
                 'status_code' => 500,
@@ -144,5 +148,25 @@ class FeedbackController {
             'success'     => 1,
             'message'     => 'Feedback saved successfully.',
         ] );
+    }
+
+    public function verify_email_status( string $email = "" ) {
+        $api_key = '700tpaQtc06FcqN93Ljkoibz6oo76KWk'; // Replace with your actual API key
+        $url     = 'https://emailverifier.reoon.com/api/v1/verify';
+
+        $response = wp_remote_get( add_query_arg( [
+            'email' => $email,
+            'key'   => $api_key,
+            'mode'  => 'quick',
+        ], $url ) );
+
+        if ( is_wp_error( $response ) ) {
+            return 'error';
+        }
+
+        $body = wp_remote_retrieve_body( $response );
+        $data = json_decode( $body, true );
+
+        return isset( $data['status'] ) && $data['status'] === "valid";
     }
 }
