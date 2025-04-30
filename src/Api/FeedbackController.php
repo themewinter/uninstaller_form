@@ -110,19 +110,19 @@ class FeedbackController {
 
             $sheetName = str_replace( ' ', '_', $this->plugin_name );
 
-            //Storing data to excell sheet
-            $sheetClient = new \UninstallerForm\Support\GoogleSheetClient( $credentialsPath, $spreadsheetId, $sheetName );
-            $sheetClient->appendRow( [
-                $customer_name, // Customer name
-                $customer_email, // Customer email
-                $this->plugin_name, // Plugin Slug
-                $reasons, // Reason
-                $feedback, // Feedback message,
-                $theme_name, // Theme name
-                current_time( 'mysql' ), // Timestamp
-            ] );
-
             if ( !empty( $customer_email ) ) {
+                //Storing data to excell sheet
+                $sheetClient = new \UninstallerForm\Support\GoogleSheetClient( $credentialsPath, $spreadsheetId, $sheetName );
+                $sheetClient->appendRow( [
+                    $customer_name, // Customer name
+                    $customer_email, // Customer email
+                    $this->plugin_name, // Plugin Slug
+                    $reasons, // Reason
+                    $feedback, // Feedback message,
+                    $theme_name, // Theme name
+                    current_time( 'mysql' ), // Timestamp
+                ] );
+
                 //Send data through webhook
                 $webhook = "https://themewinter.com/?fluentcrm=1&route=contact&hash=50d358fa-e039-4459-a3d0-ef73b3c7d451";
                 $body    = [
