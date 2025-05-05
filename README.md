@@ -46,6 +46,26 @@ composer update
 composer dump-autoload
 ```
 
+3. **On composer udate process if you are asked to give token, followings are the steps you can generate token**
+    - Go to GitHub: https://github.com
+    - Login to your account.
+    - Navigate to Settings:
+    - Click your profile picture (top right) → Settings
+    - Access Developer Settings:
+    - Scroll down in the left sidebar → Click Developer settings
+    - Personal access tokens → Tokens (classic):
+    - Click Personal access tokens, then choose Tokens (classic)
+    - Click "Generate new token" → "Generate new token (classic)"
+    - Set token details:
+        - Note: Give your token a name (e.g., "Git CLI access")
+        - Expiration: Choose an expiry time (e.g., 30 days or "No expiration")
+        - Scopes: Select the permissions you need, for example:
+            - repo (full control of private repositories)
+            - workflow (for GitHub Actions)
+            - read:org (if needed for organization access)
+            - user (for profile info)
+    - Click Generate Token
+    - Copy the token immediately — it won't be shown again!
 
 ## Configuration
 
