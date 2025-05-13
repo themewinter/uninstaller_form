@@ -76,13 +76,15 @@ composer dump-autoload
         require_once plugin_dir_path( __FILE__ ) . '/vendor/autoload.php';
     }
 
-    UninstallerForm::init(
-        'WP Cafe',         // Plugin name
-        'wp-cafe',         // Plugin Slug
-        __FILE__,          
-        'wpcafe',          // Text Domain Name
-        'plugins-admin-script-handler'  // plugins-admin-script-handler
-    );
+    if ( class_exists( 'UninstallerForm\UninstallerForm' ) ) {
+            UninstallerForm\UninstallerForm::init(
+                'Poptics',
+                'poptics',
+                __FILE__,
+                'poptics',
+                'poptics-script'
+            );
+        }
 ```
 
 ## Feedback API Integration From NPM Package
