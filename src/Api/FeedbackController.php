@@ -44,7 +44,7 @@ class FeedbackController {
      *
      * @since 1.0.0
      */
-    public function __construct( $plugin_file, $plugin_text_domain, $plugin_name, $plugin_slug ) {
+    public function __construct($plugin_file, $plugin_text_domain, $plugin_name, $plugin_slug) {
         $this->plugin_file        = $plugin_file;
         $this->plugin_text_domain = $plugin_text_domain;
         $this->plugin_name        = $plugin_name;
@@ -61,13 +61,13 @@ class FeedbackController {
      * @return void
      */
     protected function register_routes() {
-        register_rest_route( $this->namespace, $this->rest_base, [
+        register_rest_route($this->namespace, $this->rest_base, [
             'methods'             => 'POST',
             'callback'            => [$this, 'handle_feedback'],
             'permission_callback' => function () {
-                return current_user_can( 'manage_options' );
+                return current_user_can('manage_options');
             },
-        ] );
+        ]);
     }
 
     /**
@@ -78,23 +78,23 @@ class FeedbackController {
      * @param WP_REST_Request $request The request object.
      * @return WP_REST_Response The response object.
      */
-    public function handle_feedback( WP_REST_Request $request ) {
-        $nonce = $request->get_header( 'X-WP-Nonce' );
-        if ( !wp_verify_nonce( $nonce, 'wp_rest' ) ) {
-            return rest_ensure_response( [
+    public function handle_feedback(WP_REST_Request $request) {
+        $nonce = $request->get_header('X-WP-Nonce');
+        if (! wp_verify_nonce($nonce, 'wp_rest')) {
+            return rest_ensure_response([
                 'status_code' => 403,
                 'success'     => 0,
                 'message'     => 'Invalid nonce. Unauthorized request.',
-            ] );
+            ]);
         }
 
         $data           = $request->get_json_params();
-        $feedback       = !empty( $data['feedback'] ) ? sanitize_text_field( $data['feedback'] ) : 'No feedback';
-        $reasons        = !empty( $data['reasons'] ) ? sanitize_text_field( $data['reasons'] ) : 'No reasons';
-        $customer_email = is_email( $data['email'] ) ? sanitize_email( $data['email'] ) : '';
-        $theme_name     = !empty( $data['theme_name'] ) ? sanitize_text_field( $data['theme_name'] ) : '';
+        $feedback       = ! empty($data['feedback']) ? sanitize_text_field($data['feedback']) : 'No feedback';
+        $reasons        = ! empty($data['reasons']) ? sanitize_text_field($data['reasons']) : 'No reasons';
+        $customer_email = is_email($data['email']) ? sanitize_email($data['email']) : '';
+        $theme_name     = ! empty($data['theme_name']) ? sanitize_text_field($data['theme_name']) : '';
 
-        if ( !$this->verify_email_status( $customer_email ) ) {
+        if (! $this->verify_email_status($customer_email)) {
             $customer_email = '';
         }
 
@@ -103,25 +103,43 @@ class FeedbackController {
         $customer_name = $current_user->exists() ? $current_user->display_name : 'Guest';
 
         try {
-            $config        = include plugin_dir_path( $this->plugin_file ) . 'vendor/themewinter/uninstaller_form/config/google-sheet.php';
-            $spreadsheetId = $config['spreadsheet_id'] ?? '';
+            // $config        = include plugin_dir_path($this->plugin_file) . 'vendor/themewinter/uninstaller_form/config/google-sheet.php';
+            // $spreadsheetId = $config['spreadsheet_id'] ?? '';
 
-            $credentialsPath = plugin_dir_path( $this->plugin_file ) . 'vendor/themewinter/uninstaller_form/config/google-credentials.json';
+            // $credentialsPath = plugin_dir_path($this->plugin_file) . 'vendor/themewinter/uninstaller_form/config/google-credentials.json';
 
-            $sheetName = str_replace( ' ', '_', $this->plugin_name );
+            // $sheetName = str_replace(' ', '_', $this->plugin_name);
 
-            if ( !empty( $customer_email ) ) {
+            if (! empty($customer_email)) {
+
+                $feedback_response = wp_remote_post('http://localhost/project/wp-json/afp/v1/feedback', [
+                    'method'  => 'POST',
+                    'headers' => [
+                        'Content-Type' => 'application/json',
+                    ],
+                    'body'    => json_encode([
+                        'customer_name'  => $customer_name,
+                        'feedback'       => $feedback,
+                        'customer_email' => $customer_email,
+                        'plugin_name'    => $this->plugin_name,
+                        'theme'          => $theme_name,
+                        'reason'         => explode(',',$reasons)
+                    ]),
+                ]);
+
+                error_log(print_r($feedback_response,true));
+
                 //Storing data to excell sheet
-                $sheetClient = new \UninstallerForm\Support\GoogleSheetClient( $credentialsPath, $spreadsheetId, $sheetName );
-                $sheetClient->appendRow( [
-                    $customer_name, // Customer name
-                    $customer_email, // Customer email
-                    $this->plugin_name, // Plugin Slug
-                    $reasons, // Reason
-                    $feedback, // Feedback message,
-                    $theme_name, // Theme name
-                    current_time( 'mysql' ), // Timestamp
-                ] );
+                // $sheetClient = new \UninstallerForm\Support\GoogleSheetClient($credentialsPath, $spreadsheetId, $sheetName);
+                // $sheetClient->appendRow([
+                //     $customer_name,        // Customer name
+                //     $customer_email,       // Customer email
+                //     $this->plugin_name,    // Plugin Slug
+                //     $reasons,              // Reason
+                //     $feedback,             // Feedback message,
+                //     $theme_name,           // Theme name
+                //     current_time('mysql'), // Timestamp
+                // ]);
 
                 //Send data through webhook
                 $webhook = "https://themewinter.com/?fluentcrm=1&route=contact&hash=50d358fa-e039-4459-a3d0-ef73b3c7d451";
@@ -133,40 +151,40 @@ class FeedbackController {
                     'feedback'      => $feedback,
                     'theme_name'    => $theme_name,
                 ];
-                $webhook_response = wp_remote_post( $webhook, ['body' => $body] );
+                $webhook_response = wp_remote_post($webhook, ['body' => $body]);
             }
-        } catch ( \Exception $e ) {
-            return rest_ensure_response( [
+        } catch (\Exception $e) {
+            return rest_ensure_response([
                 'status_code' => 500,
                 'success'     => 0,
                 'message'     => 'Unable to store feedback.',
-            ] );
+            ]);
         }
 
-        return rest_ensure_response( [
+        return rest_ensure_response([
             'status_code' => 200,
             'success'     => 1,
             'message'     => 'Feedback saved successfully.',
-        ] );
+        ]);
     }
 
-    public function verify_email_status( string $email = "" ) {
+    public function verify_email_status(string $email = "") {
         $api_key = '700tpaQtc06FcqN93Ljkoibz6oo76KWk'; // Replace with your actual API key
         $url     = 'https://emailverifier.reoon.com/api/v1/verify';
 
-        $response = wp_remote_get( add_query_arg( [
+        $response = wp_remote_get(add_query_arg([
             'email' => $email,
             'key'   => $api_key,
             'mode'  => 'quick',
-        ], $url ) );
+        ], $url));
 
-        if ( is_wp_error( $response ) ) {
+        if (is_wp_error($response)) {
             return 'error';
         }
 
-        $body = wp_remote_retrieve_body( $response );
-        $data = json_decode( $body, true );
+        $body = wp_remote_retrieve_body($response);
+        $data = json_decode($body, true);
 
-        return isset( $data['status'] ) && $data['status'] === "valid";
+        return isset($data['status']) && $data['status'] === "valid";
     }
 }
