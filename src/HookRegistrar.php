@@ -12,7 +12,7 @@ use UninstallerForm\Support\Localizer;
  * @package UNINSTALLER_FORM
  */
 class HookRegistrar {
-    protected $plugin_name, $plugin_slug, $plugin_file, $plugin_text_domain, $script_handler;
+    protected $plugin_name, $plugin_slug, $plugin_file, $plugin_text_domain, $script_handler,$webhook;
 
     /**
      * HookRegistrar Constructor.
@@ -25,12 +25,13 @@ class HookRegistrar {
      *
      * @since 1.0.0
      */
-    public function __construct($plugin_name, $plugin_slug, $plugin_file, $plugin_text_domain, $script_handler) {
+    public function __construct($plugin_name, $plugin_slug, $plugin_file, $plugin_text_domain, $script_handler,$webhook) {
         $this->plugin_name        = $plugin_name;
         $this->plugin_slug        = $plugin_slug;
         $this->plugin_file        = $plugin_file;
         $this->plugin_text_domain = $plugin_text_domain;
         $this->script_handler     = $script_handler;
+        $this->webhook            = $webhook;
     }
 
     /**
@@ -42,7 +43,7 @@ class HookRegistrar {
      */
     public function register() {
         add_action('rest_api_init', function () {
-            new FeedbackController($this->plugin_file,$this->plugin_text_domain, $this->plugin_name, $this->plugin_slug);
+            new FeedbackController($this->plugin_file,$this->plugin_text_domain, $this->plugin_name, $this->plugin_slug,$this->webhook);
         });
 
         add_action('admin_enqueue_scripts', function () {

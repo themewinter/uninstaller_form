@@ -20,8 +20,8 @@ class UninstallerForm {
      *
      * @since 1.0.0
      */
-    public static function init($plugin_name, $plugin_slug, $plugin_file,$plugin_text_domain, $script_handler) {
-        $hook_registrar = new HookRegistrar($plugin_name, $plugin_slug, $plugin_file,$plugin_text_domain, $script_handler);
+    public function init($plugin_name, $plugin_slug, $plugin_file,$plugin_text_domain, $script_handler,$webhook) {
+        $hook_registrar = new HookRegistrar($plugin_name, $plugin_slug, $plugin_file,$plugin_text_domain, $script_handler,$webhook);
         $hook_registrar->register();
     }
 }

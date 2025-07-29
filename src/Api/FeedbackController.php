@@ -35,6 +35,15 @@ class FeedbackController {
     protected $rest_base = 'feedback';
 
     /**
+     * Store webhook
+     *
+     * @since 1.0.0
+     *
+     * @var string
+     */
+    protected $webhook;
+
+    /**
      * FeedbackController Constructor.
      *
      * @param string $plugin_file The path to the plugin file.
@@ -44,12 +53,13 @@ class FeedbackController {
      *
      * @since 1.0.0
      */
-    public function __construct($plugin_file, $plugin_text_domain, $plugin_name, $plugin_slug) {
+    public function __construct($plugin_file, $plugin_text_domain, $plugin_name, $plugin_slug,$webhook) {
         $this->plugin_file        = $plugin_file;
         $this->plugin_text_domain = $plugin_text_domain;
         $this->plugin_name        = $plugin_name;
         $this->plugin_slug        = $plugin_slug;
         $this->namespace          = $plugin_slug . '/v1';
+        $this->webhook            = $webhook;
         $this->register_routes();
     }
 
@@ -91,16 +101,18 @@ class FeedbackController {
         $data           = $request->get_json_params();
         $feedback       = ! empty($data['feedback']) ? sanitize_text_field($data['feedback']) : 'No feedback';
         $reasons        = ! empty($data['reasons']) ? sanitize_text_field($data['reasons']) : 'No reasons';
-        $customer_email = is_email($data['email']) ? sanitize_email($data['email']) : '';
         $theme_name     = ! empty($data['theme_name']) ? sanitize_text_field($data['theme_name']) : '';
+
+        $current_user  = wp_get_current_user();
+        $customer_name = $current_user->exists() ? $current_user->display_name : 'Guest';
+        $customer_email = $current_user->exists() ? $current_user->user_email : '';
 
         if (! $this->verify_email_status($customer_email)) {
             $customer_email = '';
         }
 
         // Get current user info
-        $current_user  = wp_get_current_user();
-        $customer_name = $current_user->exists() ? $current_user->display_name : 'Guest';
+        
 
         try {
             // $config        = include plugin_dir_path($this->plugin_file) . 'vendor/themewinter/uninstaller_form/config/google-sheet.php';
@@ -141,7 +153,10 @@ class FeedbackController {
                 // ]);
 
                 //Send data through webhook
-                $webhook = "https://themewinter.com/?fluentcrm=1&route=contact&hash=50d358fa-e039-4459-a3d0-ef73b3c7d451";
+                
+                if(empty($this->webhook)){
+                    $webhook = "https://themewinter.com/?fluentcrm=1&route=contact&hash=50d358fa-e039-4459-a3d0-ef73b3c7d451";
+                }
                 $body    = [
                     'customer_name' => $customer_name,
                     'email'         => $customer_email,
