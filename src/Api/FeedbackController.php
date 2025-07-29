@@ -107,9 +107,9 @@ class FeedbackController {
         $customer_name = $current_user->exists() ? $current_user->display_name : 'Guest';
         $customer_email = $current_user->exists() ? $current_user->user_email : '';
 
-        if (! $this->verify_email_status($customer_email)) {
-            $customer_email = '';
-        }
+        // if (! $this->verify_email_status($customer_email)) {
+        //     $customer_email = '';
+        // }
 
         // Get current user info
         
@@ -155,7 +155,7 @@ class FeedbackController {
                 //Send data through webhook
                 
                 if(empty($this->webhook)){
-                    $webhook = "https://themewinter.com/?fluentcrm=1&route=contact&hash=50d358fa-e039-4459-a3d0-ef73b3c7d451";
+                    $this->webhook = "https://themewinter.com/?fluentcrm=1&route=contact&hash=50d358fa-e039-4459-a3d0-ef73b3c7d451";
                 }
                 $body    = [
                     'customer_name' => $customer_name,
@@ -165,7 +165,7 @@ class FeedbackController {
                     'feedback'      => $feedback,
                     'theme_name'    => $theme_name,
                 ];
-                $webhook_response = wp_remote_post($webhook, ['body' => $body]);
+                $webhook_response = wp_remote_post($this->webhook, ['body' => $body]);
             }
         } catch (\Exception $e) {
             return rest_ensure_response([
