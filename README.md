@@ -1,159 +1,148 @@
-# Email notification SDK
+# Uninstaller Feedback Form
 
-A powerful flow-based notification manager for WordPress. Define and execute customizable workflows based on user-defined actions using nodes like triggers, conditions, delays, and email notifications.
-
----
-
-## 🚀 Features
-
-- Trigger flows via WordPress actions
-- Define flow configurations using a visual editor (nodes and edges)
-- Supports condition-based branching
-- Schedule delays with resume capability
-- Send emails through configurable email nodes
-- Save and resume flow checkpoints
-- Easily extendable
+A reusable WordPress package that collects plugin deactivation feedback via a React-based form, stores it via REST API, and optionally logs feedback to a Google Sheet.
 
 ---
 
-# 🛠 Installation
+## 📦 Features
 
-## 1. Require this package via Composer
+- React-based feedback form shown on plugin deactivation
+- Sends feedback via REST API
+- Automatically deactivates the plugin after feedback submission
+- Optionally logs feedback to Google Sheets
+- Easy to integrate into any WordPress plugin
+
+---
+
+## 🛠 Installation
+
+1. **Require this package via Composer**
 
 Add the following configuration to your `composer.json`:
 
 ```json
 {
     "require": {
-        "themewinter/email-notification-sdk": "dev-main"
+        "themewinter/uninstaller_form": "dev-main"
     },
     "repositories": [
         {
             "type": "vcs",
-            "url": "https://github.com/themewinter/email-notification-sdk"
+            "url": "https://github.com/themewinter/uninstaller_form"
         }
     ]
 }
 ```
-
-If Composer is not already initialized in your plugin, please run:
+If you do not have, composer installed in your plugin, please install using 
 
 ```bash
 composer init
 ```
 
----
-
-## 2. Update Dependencies
+2. **Update Dependencies**
 
 ```bash
 composer update
 composer dump-autoload
 ```
 
----
+3. **On composer udate process if you are asked to give token, followings are the steps you can generate token**
+    - Go to GitHub: https://github.com
+    - Login to your account.
+    - Navigate to Settings:
+    - Click your profile picture (top right) → Settings
+    - Access Developer Settings:
+    - Scroll down in the left sidebar → Click Developer settings
+    - Personal access tokens → Tokens (classic):
+    - Click Personal access tokens, then choose Tokens (classic)
+    - Click "Generate new token" → "Generate new token (classic)"
+    - Set token details:
+        - Note: Give your token a name (e.g., "Git CLI access")
+        - Expiration: Choose an expiry time (e.g., 30 days or "No expiration")
+        - Scopes: Select the permissions you need, for example:
+            - repo (full control of private repositories)
+            - workflow (for GitHub Actions)
+            - read:org (if needed for organization access)
+            - user (for profile info)
+    - Click Generate Token
+    - Copy the token immediately — it won't be shown again!
 
-## 3. If you're prompted for a GitHub token during the Composer update process, follow these steps to generate one:
+## Configuration
 
-- Go to GitHub: https://github.com
-- Log in to your account.
-- Navigate to **Settings**:
-    - Click your profile picture (top right) → **Settings**
-- Access **Developer Settings**:
-    - Scroll down in the left sidebar → Click **Developer settings**
-- Go to **Personal Access Tokens** → **Tokens (classic)**
-- Click **Generate new token** → **Generate new token (classic)**
-- Set token details:
-    - **Note**: Give your token a name (e.g., "Git CLI Access")
-    - **Expiration**: Choose an expiry time (e.g., 30 days or "No expiration")
-    - **Scopes**: Select the permissions you need, for example:
-        - `repo` (full control of private repositories)
-        - `workflow` (for GitHub Actions)
-        - `read:org` (if needed for organization access)
-        - `user` (for profile info)
-- Click **Generate Token**
-- **Copy the token immediately** — it won't be shown again!
-
----
-
-# 🔧 Configuration
-
-## 1. In your plugin's main file, add this initialization code
-
-> Make sure this code runs after all of your scripts are enqueued successfully.
+1. **In your plugin's main file, add this initialization code. Make sure this code will be executed after all of your scripts enqued successfully**
 
 ```php
-if (file_exists(plugin_dir_path(__FILE__) . '/vendor/autoload.php')) {
-    require_once plugin_dir_path(__FILE__) . '/vendor/autoload.php';
-}
+    if (file_exists(plugin_dir_path( __FILE__ ) . '/vendor/autoload.php')) {
+        require_once plugin_dir_path( __FILE__ ) . '/vendor/autoload.php';
+    }
 
-if (class_exists(\ENS\Core\Sdk::class)) {
-    \ENS\Core\Sdk::get_instance()
-        ->setup([
-            'plugin_name'          => 'Poptics', //plugin name
-            'plugin_slug'          => 'poptics', //plugin slug
-            'general_prefix'       => 'pt', //general prefix - short + no (_ / -)
-            'text_domain'          => 'poptics',//textdomein
-            'admin_script_handler' => 'poptics-script',//main admin script handler name
-            'sub_menu_details'     => [ //submenu details
-                'menu_position'    => '10', // menu position
-                'menu_permission'  => 'manage_options', //permissions
-                'menu_filter_hook' => 'poptics_menu', // filter hook to assign menu
-                'menu_title'       => __('Flow Manager', 'poptics'), //menu title
-                'menu_slug'        => 'poptics-flow-manager', // menu slug
-            ],
-        ])
-        ->init();
-
-    add_filter('ens_available_actions', function ($actions) {
-        $actions = [
-            [
-                "trigger_label" => "Event Created",
-                "trigger_value" => "event_created",
-                "trigger_data"  => [
-                    ["label" => "Event Name", "value" => "event_name", "type" => "string"],
-                    ["label" => "Event Date", "value" => "event_date", "type" => "date"],
-                    ["label" => "User Email", "value" => "user_email", "type" => "string"],
-                ],
-                "delay_dependencies" => [
-                    ["label" => "Event Date", "value" => "event_date"],
-                ],
-                "email_receivers" => [
-                    ["label" => "User Email", "value" => "user_email"],
-                ],
-            ],
-            [
-                "trigger_label" => "Event Rescheduled",
-                "trigger_value" => "event_rescheduled",
-                "trigger_data"  => [
-                    ["label" => "Event Name", "value" => "event_name", "type" => "string"],
-                    ["label" => "Event Date", "value" => "event_date", "type" => "date"],
-                    ["label" => "User Email", "value" => "user_email", "type" => "string"],
-                ],
-                "delay_dependencies" => [
-                    ["label" => "Event Date", "value" => "event_date"],
-                ],
-                "email_receivers" => [
-                    ["label" => "User Email", "value" => "user_email"],
-                ],
-            ],
-        ];
-
-        return $actions;
-    });
-}
+    if ( class_exists( 'UninstallerForm\UninstallerForm' ) ) {
+            $uninstaller_form = new UninstallerForm\UninstallerForm();
+            $uninstaller_form->init(
+                'Poptics',
+                'poptics',
+                __FILE__,
+                'poptics',
+                'poptics-script'
+            );
+        }
 ```
 
----
+## Feedback API Integration From NPM Package
 
-# 📤 Triggering an Event
+**Install the Feedback API NPM Package**:  base_url/plugin_slug/v1/feedback
 
-When the event occurs, call the following code in the corresponding function:
+**Example**: http://localhost/project/wp-json/wp-cafe/v1/feedback
 
-```php
-do_action('global_notification_hook', 'event_created', [
-    'user_email' => 'badhon001@example.com',
-    'event_name' => 'World Cup Cricket',
-    'event_date' => '17023658981' // Timestamp of the event date
-]);
-```
+**Here**: 
+
+base_url = http://localhost/project/wp-json
+
+plugin_slug = wp-cafe
+
+**API DOCUMENTATION**: https://documenter.getpostman.com/view/3522317/2sB2cbaeCQ
+
+## Google Sheets Integration Setup for contributors
+
+Follow the steps below to integrate your application with Google Sheets using a service account:
+
+### 1. Go to the [Google Cloud Console](https://console.cloud.google.com/)
+
+### 2. Create a New Project
+- Click on the project dropdown at the top.
+- Select **"New Project"**, then give it a name and create it.
+
+### 3. Enable the Google Sheets API
+- Go to **APIs & Services → Library**.
+- Search for **Google Sheets API**.
+- Click on it, then click **Enable**.
+
+### 4. Create a Service Account
+- Go to **IAM & Admin → Service Accounts**.
+- Click **Create Service Account**.
+- Provide a name and description, then click **Create and Continue**.
+- Assign a role (e.g., **Editor** or **Viewer** based on your needs).
+- Click **Done**.
+
+### 5. Create a New Key for the Service Account
+- Open the service account you just created.
+- Go to the **"Keys"** tab.
+- Click **"Add Key" → "Create New Key"**.
+- Select **JSON** as the key type.
+- Click **Create** – a `.json` file will be downloaded.
+
+### 6. Store the JSON Key Securely
+- Save the contents of the downloaded `.json` key file in:  
+
+### 7. Create a New Google Sheet
+- Go to [Google Sheets](https://sheets.google.com/).
+- Create a new spreadsheet for your project.
+
+### 8. Share the Sheet with the Service Account
+- Open the spreadsheet and click **Share**.
+- Share it with the **service account email** (found in the JSON key file under `client_email`).
+- Grant **Editor** access.
+
+### 9. Add the Spreadsheet ID to Your Config
+- Copy the **Spreadsheet ID** from the URL:
+- Add it to: **config/google-sheet.php**
