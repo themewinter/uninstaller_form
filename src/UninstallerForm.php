@@ -1,6 +1,8 @@
 <?php
 namespace UninstallerForm;
 
+use ReflectionMethod;
+
 /**
  * UninstallerForm class for the uninstaller form.
  *
@@ -21,7 +23,12 @@ class UninstallerForm {
      * @since 1.0.0
      */
     public static function init($plugin_name, $plugin_slug, $plugin_file,$plugin_text_domain, $script_handler,$webhook='') {
-        $hook_registrar = new HookRegistrar($plugin_name, $plugin_slug, $plugin_file,$plugin_text_domain, $script_handler,$webhook);
-        $hook_registrar->register();
+        $reflection = new ReflectionMethod(HookRegistrar::class, '__construct');
+        $totalParams    = $reflection->getNumberOfParameters();
+
+        if( $totalParams === 6){
+            $hook_registrar = new HookRegistrar($plugin_name, $plugin_slug, $plugin_file,$plugin_text_domain, $script_handler,$webhook);
+            $hook_registrar->register();
+        }
     }
 }

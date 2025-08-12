@@ -1,6 +1,7 @@
 <?php
 namespace UninstallerForm;
 
+use ReflectionMethod;
 use UninstallerForm\Api\FeedbackController;
 use UninstallerForm\Support\Localizer;
 
@@ -43,7 +44,11 @@ class HookRegistrar {
      */
     public function register() {
         add_action('rest_api_init', function () {
-            new FeedbackController($this->plugin_file,$this->plugin_text_domain, $this->plugin_name, $this->plugin_slug,$this->webhook);
+            $reflection = new ReflectionMethod(FeedbackController::class, '__construct');
+            $totalParams    = $reflection->getNumberOfParameters();
+            if( $totalParams === 5){
+                new FeedbackController($this->plugin_file,$this->plugin_text_domain, $this->plugin_name, $this->plugin_slug,$this->webhook);
+            }
         });
 
         add_action('admin_enqueue_scripts', function () {
