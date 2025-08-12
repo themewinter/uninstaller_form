@@ -53,7 +53,7 @@ class FeedbackController {
      *
      * @since 1.0.0
      */
-    public function __construct($plugin_file, $plugin_text_domain, $plugin_name, $plugin_slug,$webhook) {
+    public function __construct($plugin_file, $plugin_text_domain, $plugin_name, $plugin_slug,$webhook='') {
         $this->plugin_file        = $plugin_file;
         $this->plugin_text_domain = $plugin_text_domain;
         $this->plugin_name        = $plugin_name;

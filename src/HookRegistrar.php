@@ -25,7 +25,7 @@ class HookRegistrar {
      *
      * @since 1.0.0
      */
-    public function __construct($plugin_name, $plugin_slug, $plugin_file, $plugin_text_domain, $script_handler,$webhook) {
+    public function __construct($plugin_name, $plugin_slug, $plugin_file, $plugin_text_domain, $script_handler,$webhook='') {
         $this->plugin_name        = $plugin_name;
         $this->plugin_slug        = $plugin_slug;
         $this->plugin_file        = $plugin_file;
