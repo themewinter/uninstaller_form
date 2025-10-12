@@ -102,10 +102,14 @@ class FeedbackController {
         $feedback       = ! empty($data['feedback']) ? sanitize_text_field($data['feedback']) : 'No feedback';
         $reasons        = ! empty($data['reasons']) ? sanitize_text_field($data['reasons']) : 'No reasons';
         $theme_name     = ! empty($data['theme_name']) ? sanitize_text_field($data['theme_name']) : '';
-
+        $is_agree       = isset( $data['is_agree'] ) && filter_var( $data['is_agree'], FILTER_VALIDATE_BOOLEAN );
+        
         $current_user  = wp_get_current_user();
-        $customer_name = $current_user->exists() ? $current_user->display_name : 'Guest';
-        $customer_email = $current_user->exists() ? $current_user->user_email : '';
+        $user_name = $current_user->exists() ? $current_user->display_name : 'Guest';
+        $user_email = $current_user->exists() ? $current_user->user_email : '';
+        
+        $customer_name  = ! empty($data['customer_name']) ? sanitize_text_field($data['customer_name']) : $user_name;
+        $customer_email  = ! empty($data['customer_email']) ? sanitize_text_field($data['customer_email']) : '';
 
         // if (! $this->verify_email_status($customer_email)) {
         //     $customer_email = '';
@@ -135,7 +139,8 @@ class FeedbackController {
                         'customer_email' => $customer_email,
                         'plugin_name'    => $this->plugin_name,
                         'theme'          => $theme_name,
-                        'reason'         => explode(',',$reasons)
+                        'reason'         => explode(',',$reasons),
+                        'is_agree'       => $is_agree
                     ]),
                 ]);
 
