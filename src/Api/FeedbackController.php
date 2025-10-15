@@ -109,7 +109,7 @@ class FeedbackController {
         $user_email = $current_user->exists() ? $current_user->user_email : '';
         
         $customer_name  = ! empty($data['customer_name']) ? sanitize_text_field($data['customer_name']) : $user_name;
-        $customer_email  = ! empty($data['customer_email']) ? sanitize_text_field($data['customer_email']) : '';
+        $customer_email  = ! empty($data['customer_email']) ? sanitize_text_field($data['customer_email']) : 'Not Given';
 
         // if (! $this->verify_email_status($customer_email)) {
         //     $customer_email = '';
