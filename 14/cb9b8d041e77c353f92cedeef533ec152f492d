@@ -1,0 +1,26 @@
+composer.json
+  s_c3d92d9f55380b::t_5affc338aeba9f 5
+README.md
+  s_c3d92d9f55380b::t_a0ad19c3e42edf 3
+  s_c3d92d9f55380b::t_395af001d0e668 104,106,108
+src/Api/FeedbackController.php
+  s_c3d92d9f55380b::t_c1b0f1f4701c33 141
+LICENSE
+  s_c3d92d9f55380b::t_9df8f2a44d1118 1-358
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.6.22",
+  "base_commit_sha": "14cb9b8d041e77c353f92cedeef533ec152f492d",
+  "prompts": {},
+  "sessions": {
+    "s_c3d92d9f55380b": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "d8bb2484-6525-4d50-a491-2b17cca89dc7",
+        "model": "claude-opus-5"
+      },
+      "human_author": "emaratHossain <167071621+emaratHossain@users.noreply.github.com>"
+    }
+  }
+}
